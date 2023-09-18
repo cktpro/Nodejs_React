@@ -1,21 +1,21 @@
 // import
 import React, { memo, useEffect, useState, useCallback } from "react";
-import { createRoot } from 'react-dom/client';
 import { Link } from "react-router-dom";
 import {
-  Space,Table,Form,Button,Popconfirm,Modal,message,Pagination,
+  Space,
+  Table,
+  Form,
+  Button,
+  Popconfirm,
+  Modal,
+  message,
+  Pagination,
 } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 import { axiosClient } from "helper/axiosClient";
-import CategoryForm from "./categoryForm";
-const MESSAGE_TYPE = {
-  SUCCESS: "success",
-  INFO: "info",
-  WARNING: "warning",
-  ERROR: "error",
-};
-function Admin_Category() {
+import SupplierForm from "./supplierForm";
+function Supplier() {
   // variable
   const DEFAULT_LIMIT = 5;
   const [pagination, setPagination] = useState({
@@ -25,7 +25,7 @@ function Admin_Category() {
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [suppliers, setSupplier] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const [createForm] = Form.useForm();
   const [updateForm] = Form.useForm();
@@ -41,41 +41,35 @@ function Admin_Category() {
     [updateForm]
   );
 
-//   const onShowMessage = useCallback(
-//     (content, type = MESSAGE_TYPE.SUCCESS) => {
-//       messageApi.open({
-//         type: type,
-//         content: content,
-//       });
-//     },
-//     [messageApi]
-//   );
-  const onFinish = useCallback(async (values) => {
-    try {
-      const res = await axiosClient.post("/category", values);
-
-      
-
-      setRefresh(refresh + 1);
-      // CASE 1
-      // const newItem = res.data.payload;
-
-      // setProducts((preState) => ([
-      //   ...preState,
-      //   newItem,
-      // ]))
-    } catch (error) {
-      if (error?.response?.data?.errors) {
-        error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
-      }
-    }
-  }, []);
+  //   const onShowMessage = useCallback(
+  //     (content, type = MESSAGE_TYPE.SUCCESS) => {
+  //       messageApi.open({
+  //         type: type,
+  //         content: content,
+  //       });
+  //     },
+  //     [messageApi]
+  //   );
+  const onFinish = useCallback(
+    async (values) => {
+      await axiosClient
+        .post("/suppliers", values)
+        .then(function (response) {
+          setRefresh(refresh + 1);
+          message.success("Thành công");
+        })
+        .catch(function (error) {
+          message.error("Thất bại");
+        });
+    },
+    [refresh]
+  );
   const onDeleteFinish = useCallback(
     (id) => async () => {
       try {
-        const res = await axiosClient.patch(`/category/delete/${id}`);
+        const res = await axiosClient.patch(`/suppliers/delete/${id}`);
 
-        getCategories();
+        getSupplier();
         // setRefresh(refresh + 1);
 
         // const newItem = res.data.payload;
@@ -104,20 +98,19 @@ function Admin_Category() {
         updateForm.resetFields();
 
         setEditModalVisible(false);
-        message.success('Cập nhật thành công');
+        message.success("Cập nhật thành công");
       } catch (error) {
         if (error?.response?.data?.errors) {
-            message.fail('Cập nhật thất bại');
-          error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
+          error.response.data.errors.map((e) => message.error(e));
         }
       }
     },
-    [selectedProduct, updateForm,refresh]
+    [selectedProduct, updateForm, refresh]
   );
-  const getCategories = useCallback(async () => {
+  const getSupplier = useCallback(async () => {
     try {
-      const res = await axiosClient.get("/category");
-      setCategories(res.data.payload);
+      const res = await axiosClient.get("/suppliers");
+      setSupplier(res.data.payload);
     } catch (err) {
       console.log("◀◀◀ err ▶▶▶", err);
     }
@@ -130,14 +123,14 @@ function Admin_Category() {
         pageSize,
       }));
 
-      getCategories();
+      getSupplier();
     },
-    [getCategories]
+    [getSupplier]
   );
 
   useEffect(() => {
-    getCategories();
-  }, [getCategories,refresh]);
+    getSupplier();
+  }, [getSupplier, refresh]);
   const columns = [
     {
       title: "STT",
@@ -153,11 +146,21 @@ function Admin_Category() {
         return <Link to={`/product_details/${record._id}`}>{record.name}</Link>;
       },
     },
-   
+
     {
-      title: "Description",
-      key: "description",
-      dataIndex: "description",
+      title: "Email",
+      key: "email",
+      dataIndex: "email",
+    },
+    {
+      title: "Phone Number",
+      key: "phone",
+      dataIndex: "phoneNumber",
+    },
+    {
+      title: "Address",
+      key: "address",
+      dataIndex: "address",
     },
     {
       title: "Action",
@@ -185,9 +188,6 @@ function Admin_Category() {
       },
     },
   ];
-  const handleChange = (value) => {
-    console.log("◀◀◀ choose ▶▶▶", value);
-  };
   const [inputValue, setInputValue] = useState(1);
   const onChange = (newValue) => {
     setInputValue(newValue);
@@ -195,13 +195,11 @@ function Admin_Category() {
   return (
     // main
     <>
-    <CategoryForm
-    onFinish={onFinish}
-    />
+      <SupplierForm onFinish={onFinish} />
       <Table
         rowKey="_id"
         columns={columns}
-        dataSource={categories}
+        dataSource={suppliers}
         pagination={false}
       />
       <Pagination
@@ -223,7 +221,7 @@ function Admin_Category() {
           updateForm.submit();
         }}
       >
-        <CategoryForm
+        <SupplierForm
           form={updateForm}
           onFinish={onEditFinish}
           formName="update-product"
@@ -233,4 +231,4 @@ function Admin_Category() {
     </>
   );
 }
-export default memo(Admin_Category);
+export default memo(Supplier);

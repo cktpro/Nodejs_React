@@ -1,15 +1,11 @@
 import React, { memo } from "react";
-import { Button, Form, Input, InputNumber, } from "antd";
+import { Button, Form, Input, Upload, message } from "antd";
+
 
 function CategoryForm(props) {
-  const {
-    isHiddenSubmit,
-    formName,
-    form,
-    optionStyle,
-    onFinish,
-    className
-  } = props;
+  
+  const { isHiddenSubmit, formName, form, optionStyle, onFinish, className } =
+    props;
   return (
     <div className="w-75 mx-auto">
       <Form
@@ -52,7 +48,7 @@ function CategoryForm(props) {
         )}
       </Form>
     </div>
-  )
+  );
 }
 
-export default memo(CategoryForm)
+export default memo(CategoryForm);

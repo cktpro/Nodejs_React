@@ -14,9 +14,10 @@ a {
   }
   .product-image img {
     height: 350px;
-    width: 250px;
+    width: 350px;
     border-radius: 20px;
     margin-right: 10px;
+    object-fit: cover;
   }
   .old-price {
     color: #777;

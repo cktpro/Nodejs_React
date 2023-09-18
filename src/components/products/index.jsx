@@ -9,23 +9,17 @@ import {
   Popconfirm,
   Modal,
   message,
-  Alert,
   Row,
   Col,
   Pagination,
   Select,
-  Slider
 } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 import { axiosClient } from "helper/axiosClient";
+import axios from "axios";
 import ProductsForm from "./productsForm";
-const MESSAGE_TYPE = {
-  SUCCESS: "success",
-  INFO: "info",
-  WARNING: "warning",
-  ERROR: "error",
-};
+
 function Products() {
   // variable
   const DEFAULT_LIMIT = 5;
@@ -34,7 +28,6 @@ function Products() {
     page: 1,
     pageSize: DEFAULT_LIMIT,
   });
-  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState({
     categoryId: undefined,
   });
@@ -44,10 +37,8 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [refresh, setRefresh] = useState(0);
   const [createForm] = Form.useForm();
   const [updateForm] = Form.useForm();
-  const [messageApi, contextHolder] = message.useMessage();
 
   const onSelectProduct = useCallback(
     (data) => () => {
@@ -59,52 +50,40 @@ function Products() {
     },
     [updateForm]
   );
-  const onShowToast = useCallback(
-    ({
-      message = "Thành công",
-      description = "Thành công",
-      type = MESSAGE_TYPE.SUCCESS,
-    }) => {
-      return (
-        <Alert
-          message={message}
-          description={description}
-          type={type}
-          showIcon
-        />
-      );
-    },
-    []
-  );
 
-  const onShowMessage = useCallback(
-    (content, type = MESSAGE_TYPE.SUCCESS) => {
-      messageApi.open({
-        type: type,
-        content: content,
-      });
-    },
-    [messageApi]
-  );
   const onFinish = useCallback(async (values) => {
+    console.log('◀◀◀ values ▶▶▶',values.upload.file);
     try {
-      const res = await axiosClient.post("/products", values);
-
-      // onShowMessage('Thêm sản phẩm thành công');
-
-      // setRefresh(refresh + 1);
-      console.log("◀◀◀ Thêm sản phẩm thành công ▶▶▶");
-      // CASE 1
-      // const newItem = res.data.payload;
-
-      // setProducts((preState) => ([
-      //   ...preState,
-      //   newItem,
-      // ]))
+      const formData = new FormData();
+      formData.append('file', values.upload.file);
+      
+     const img= await axios.post('http://localhost:3005/media/upload-single', formData)
+      console.log('◀◀◀ img ▶▶▶',img.data.payload._id);
+      const {name,price,discount,stock,description,categoryId,supplierId}=values
+      const data=
+        {
+          name,
+          price,
+          discount,
+          stock,
+          description,
+          categoryId,
+          supplierId,
+          mediaId:`${img.data.payload._id}`
+        }
+      
+      console.log('◀◀◀ data ▶▶▶',data);
+      const res = await axiosClient.post("/products", data);
+      message.success("Thêm sản phẩm thành công");
     } catch (error) {
-      if (error?.response?.data?.errors) {
-        error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
+      console.log('◀◀◀ error ▶▶▶',error);
+      if (error?.response?.data?.error) {
+        const {code,keyValue}=error.response.data.error
+        if(code===11000){
+        return  message.error(`Mã sản phẩm ${keyValue.name} đã tồn tại`)
+        }
       }
+      return message.error("Thêm sản phẩm thất bại");
     }
   }, []);
   const onDeleteFinish = useCallback(
@@ -154,9 +133,8 @@ function Products() {
   const getProductData = useCallback(async () => {
     try {
       const res = await axiosClient.get(
-        `/products?page=${pagination.page}&pageSize=${pagination.pageSize}&category=${search.categoryId}`
+        `/products?page=${pagination.page}&pageSize=${pagination.pageSize}${search.categoryId?`&categoryId=${search.categoryId}`:''}`
       );
-      console.log("◀◀◀ res ▶▶▶", res.data.payload);
       setProducts(res.data.payload);
       setPagination((prev) => ({
         ...prev,
@@ -216,6 +194,15 @@ function Products() {
       key: "name",
       render: (text, record, index) => {
         return <Link to={`/product_details/${record._id}`}>{record.name}</Link>;
+      },
+    },
+    {
+      title: "Hình ảnh",
+      key: "mediaId",
+      render: (text, record, index) => {
+        if(record.image)return  <img src={`http://localhost:3005${record.image.location.split('public',2)[1]}`} alt="" width="100px" height="100px"/>
+        //<img src={`http://localhost:3005${record.image.location.split('public',2)[1]}`} alt="" width="100px" height="100px"/>
+        return <img src={require('assets/images/noimage.jpg')} alt="" width="100px" height="100px"/>
       },
     },
     {
@@ -281,7 +268,18 @@ function Products() {
   ];
   const handleChange = (value) => {
     console.log("◀◀◀ choose ▶▶▶", value);
+    setPagination((prev) => ({
+      ...prev,
+      page:1
+    }));
     setSearch((prev) => {
+      if(value==='all'){
+        return {
+          ...prev,
+          categoryId: null,
+        };
+        
+      }
       return {
         ...prev,
         categoryId: value,
@@ -311,15 +309,29 @@ function Products() {
           </Button>
         </Col>
       </Row>
+      
+      {!isHidden ? (
+        <div className="container">
+          <ProductsForm
+            suppliers={suppliers}
+            categories={categories}
+            formName="add-product-form"
+            onFinish={onFinish}
+          />
+        </div>
+      ) : null}
       <Row>
-        <Col>
+        <Col className="mb-2">
           <Select
-            defaultValue="Select"
+            defaultValue="all"
             style={{
               width: 120,
             }}
             onChange={handleChange}
           >
+            <Select.Option value="all">
+                  Tất cả danh mục
+                </Select.Option>
             {categories.map((item) => {
               return (
                 <Select.Option key={item._id} value={item._id}>
@@ -329,35 +341,7 @@ function Products() {
             })}
           </Select>
         </Col>
-        <Col>
-          {/* <Slider
-          style={{
-            width: 120,
-          }}
-            range={{
-              draggableTrack: true,
-            }}
-            defaultValue={[0, 1000]}
-          /> */}
-          <Slider
-          style={{
-            width: 200,
-          }}
-          // range={true}     
-          min={1}
-          max={2000}
-          onChange={onChange}
-          value={typeof inputValue === 'number' ? inputValue : 0}
-        />
-        </Col>
       </Row>
-      <ProductsForm
-        className={isHidden ? "d-none" : "d-block"}
-        suppliers={suppliers}
-        categories={categories}
-        formName="add-product-form"
-        onFinish={onFinish}
-      />
       <Table
         rowKey="_id"
         columns={columns}

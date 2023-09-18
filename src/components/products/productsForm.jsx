@@ -1,6 +1,6 @@
 import React, { memo } from "react";
-import { Button, Form, Input, InputNumber, Select } from "antd";
-
+import { Button, Form, Input, InputNumber, Select,Upload  } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 const { Option } = Select;
 function ProductsForm(props) {
   const {
@@ -96,6 +96,18 @@ function ProductsForm(props) {
           ]}
         >
           <Input />
+        </Form.Item>
+        <Form.Item
+          label="Hình ảnh"
+          name="upload"
+        >
+        <Upload
+          name="file"
+          beforeUpload={true}
+          listType="picture"
+        >
+          <Button icon={<UploadOutlined />}>Click to Upload</Button>
+        </Upload>
         </Form.Item>
         <Form.Item
           label="Giá gốc"

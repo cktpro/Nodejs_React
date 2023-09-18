@@ -1,21 +1,22 @@
 // import
 import React, { memo, useEffect, useState, useCallback } from "react";
+import { createRoot } from 'react-dom/client';
 import { Link } from "react-router-dom";
 import {
-  Space,
-  Table,
-  Form,
-  Button,
-  Popconfirm,
-  Modal,
-  message,
-  Pagination,
+  Space,Table,Form,Button,Popconfirm,Modal,message,Pagination,Upload,Layout
 } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-
+import { DeleteOutlined, EditOutlined,UploadOutlined } from "@ant-design/icons";
+import axios, { Axios } from "axios";
 import { axiosClient } from "helper/axiosClient";
-import SupplierForm from "./supplierForm";
-function Admin_Supplier() {
+import CategoryForm from "./categoryForm";
+const MESSAGE_TYPE = {
+  SUCCESS: "success",
+  INFO: "info",
+  WARNING: "warning",
+  ERROR: "error",
+};
+const {Content}=Layout
+function Admin_Category() {
   // variable
   const DEFAULT_LIMIT = 5;
   const [pagination, setPagination] = useState({
@@ -25,7 +26,7 @@ function Admin_Supplier() {
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [suppliers, setSupplier] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const [createForm] = Form.useForm();
   const [updateForm] = Form.useForm();
@@ -41,35 +42,41 @@ function Admin_Supplier() {
     [updateForm]
   );
 
-  //   const onShowMessage = useCallback(
-  //     (content, type = MESSAGE_TYPE.SUCCESS) => {
-  //       messageApi.open({
-  //         type: type,
-  //         content: content,
-  //       });
-  //     },
-  //     [messageApi]
-  //   );
-  const onFinish = useCallback(
-    async (values) => {
-      await axiosClient
-        .post("/suppliers", values)
-        .then(function (response) {
-          setRefresh(refresh + 1);
-          message.success("Thành công");
-        })
-        .catch(function (error) {
-          message.error("Thất bại");
-        });
-    },
-    [refresh]
-  );
+//   const onShowMessage = useCallback(
+//     (content, type = MESSAGE_TYPE.SUCCESS) => {
+//       messageApi.open({
+//         type: type,
+//         content: content,
+//       });
+//     },
+//     [messageApi]
+//   );
+// POST CATEGORY
+  const onFinish = useCallback(async (values) => {
+    
+    try {
+      const res = await axiosClient.post("/category",values);
+
+      
+
+      setRefresh(refresh + 1);
+      // CASE 1
+      // const newItem = res.data.payload;
+
+      // setProducts((preState) => ([
+      //   ...preState,
+      //   newItem,
+      // ]))
+    } catch (error) {
+      console.log('◀◀◀ error ▶▶▶',error);
+    }
+  }, []);
   const onDeleteFinish = useCallback(
     (id) => async () => {
       try {
-        const res = await axiosClient.patch(`/suppliers/delete/${id}`);
+        const res = await axiosClient.patch(`/category/delete/${id}`);
 
-        getSupplier();
+        getCategories();
         // setRefresh(refresh + 1);
 
         // const newItem = res.data.payload;
@@ -98,19 +105,20 @@ function Admin_Supplier() {
         updateForm.resetFields();
 
         setEditModalVisible(false);
-        message.success("Cập nhật thành công");
+        message.success('Cập nhật thành công');
       } catch (error) {
         if (error?.response?.data?.errors) {
-          error.response.data.errors.map((e) => message.error(e));
+            message.fail('Cập nhật thất bại');
+          error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
         }
       }
     },
-    [selectedProduct, updateForm, refresh]
+    [selectedProduct, updateForm,refresh]
   );
-  const getSupplier = useCallback(async () => {
+  const getCategories = useCallback(async () => {
     try {
-      const res = await axiosClient.get("/suppliers");
-      setSupplier(res.data.payload);
+      const res = await axiosClient.get("/category");
+      setCategories(res.data.payload);
     } catch (err) {
       console.log("◀◀◀ err ▶▶▶", err);
     }
@@ -123,14 +131,14 @@ function Admin_Supplier() {
         pageSize,
       }));
 
-      getSupplier();
+      getCategories();
     },
-    [getSupplier]
+    [getCategories]
   );
 
   useEffect(() => {
-    getSupplier();
-  }, [getSupplier, refresh]);
+    getCategories();
+  }, [getCategories,refresh]);
   const columns = [
     {
       title: "STT",
@@ -146,21 +154,11 @@ function Admin_Supplier() {
         return <Link to={`/product_details/${record._id}`}>{record.name}</Link>;
       },
     },
-
+   
     {
-      title: "Email",
-      key: "email",
-      dataIndex: "email",
-    },
-    {
-      title: "Phone Number",
-      key: "phone",
-      dataIndex: "phoneNumber",
-    },
-    {
-      title: "Address",
-      key: "address",
-      dataIndex: "address",
+      title: "Description",
+      key: "description",
+      dataIndex: "description",
     },
     {
       title: "Action",
@@ -188,6 +186,9 @@ function Admin_Supplier() {
       },
     },
   ];
+  const handleChange = (value) => {
+    console.log("◀◀◀ choose ▶▶▶", value);
+  };
   const [inputValue, setInputValue] = useState(1);
   const onChange = (newValue) => {
     setInputValue(newValue);
@@ -195,11 +196,13 @@ function Admin_Supplier() {
   return (
     // main
     <>
-      <SupplierForm onFinish={onFinish} />
+    <CategoryForm
+    onFinish={onFinish}
+    />
       <Table
         rowKey="_id"
         columns={columns}
-        dataSource={suppliers}
+        dataSource={categories}
         pagination={false}
       />
       <Pagination
@@ -221,7 +224,7 @@ function Admin_Supplier() {
           updateForm.submit();
         }}
       >
-        <SupplierForm
+        <CategoryForm
           form={updateForm}
           onFinish={onEditFinish}
           formName="update-product"
@@ -231,4 +234,4 @@ function Admin_Supplier() {
     </>
   );
 }
-export default memo(Admin_Supplier);
+export default memo(Admin_Category);
