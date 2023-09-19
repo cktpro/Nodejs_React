@@ -10,5 +10,10 @@ export const LOCATIONS = {
     PRODUCTS: '/products',
     PRODUCT_DETAILS:'/product_details/:id',
     UPLOAD:'/upload',
+    ADD_PRODUCT:'/addproduct',
+    ADD_CATEGORY:'/addcategory',
+    ADD_SUPPLIER:'/addsupplier',
+    LOGOUT:'/logout',
+    MY_PROFILE: '/myprofile',
 
 }

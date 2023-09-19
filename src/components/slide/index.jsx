@@ -1,9 +1,7 @@
 import React,{useCallback} from 'react';
 import { useNavigate } from "react-router-dom";
 import {
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
+    UserOutlined,AppstoreOutlined,ShopOutlined,ShoppingFilled
   } from "@ant-design/icons";
   import { Layout, Menu, } from "antd";
 
@@ -28,7 +26,7 @@ function Slide(props) {
           items={[
             {
               key: "1",
-              icon: <UserOutlined />,
+              icon: <ShoppingFilled />,
               label: "Products",
               children: [
                 {
@@ -43,7 +41,7 @@ function Slide(props) {
             },
             {
                 key: "2",
-                icon: <UserOutlined />,
+                icon: <AppstoreOutlined />,
                 label: "Categories",
                 children: [
                   {
@@ -58,7 +56,7 @@ function Slide(props) {
               },
               {
                 key: "3",
-                icon: <UserOutlined />,
+                icon: <ShopOutlined />,
                 label: "Suppliers",
                 children: [
                   {
@@ -71,40 +69,40 @@ function Slide(props) {
                   },
                 ],
               },
-            {
-              key: "4",
-              icon: <VideoCameraOutlined />,
-              label: "Customers",
-              children: [
-                {
-                  key: "addcustomer",
-                  label: "Add Customer",
-                },
-                {
-                  key: "customers",
-                  label: "Customer List",
-                },
-              ],
-            },
-            {
-              key: "5",
-              icon: <UploadOutlined />,
-              label: "Orders",
-              children: [
-                {
-                  key: "order_dashboard",
-                  label: "Dashboard",
-                },
-                {
-                  key: "orders",
-                  label: "Order List",
-                },
-                {
-                  key: "orderprocess",
-                  label: "Order in Process",
-                },
-              ],
-            },
+            // {
+            //   key: "4",
+            //   icon: <VideoCameraOutlined />,
+            //   label: "Customers",
+            //   children: [
+            //     {
+            //       key: "addcustomer",
+            //       label: "Add Customer",
+            //     },
+            //     {
+            //       key: "customers",
+            //       label: "Customer List",
+            //     },
+            //   ],
+            // },
+            // {
+            //   key: "5",
+            //   icon: <UploadOutlined />,
+            //   label: "Orders",
+            //   children: [
+            //     {
+            //       key: "order_dashboard",
+            //       label: "Dashboard",
+            //     },
+            //     {
+            //       key: "orders",
+            //       label: "Order List",
+            //     },
+            //     {
+            //       key: "orderprocess",
+            //       label: "Order in Process",
+            //     },
+            //   ],
+            // },
           ]}
         />
         <div  className='title-slide'><h6>Pages</h6></div>
@@ -122,6 +120,14 @@ function Slide(props) {
                 {
                   key: "upload",
                   label: "Upload File",
+                },
+                {
+                  key: "myprofile",
+                  label: "My Profile",
+                },
+                {
+                  key: "logout",
+                  label: "Logout",
                 },
                 
               ],

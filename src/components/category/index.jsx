@@ -1,24 +1,15 @@
 // import
 import React, { memo, useEffect, useState, useCallback } from "react";
-import { createRoot } from 'react-dom/client';
 import { Link } from "react-router-dom";
 import {
-  Space,Table,Form,Button,Popconfirm,Modal,message,Pagination,Upload,Layout
+  Space,Table,Form,Button,Popconfirm,Modal,message,Pagination,Row,Col
 } from "antd";
-import { DeleteOutlined, EditOutlined,UploadOutlined } from "@ant-design/icons";
-import axios, { Axios } from "axios";
-import { axiosClient } from "helper/axiosClient";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import CategoryForm from "./categoryForm";
-const MESSAGE_TYPE = {
-  SUCCESS: "success",
-  INFO: "info",
-  WARNING: "warning",
-  ERROR: "error",
-};
-const {Content}=Layout
-function Admin_Category() {
+import { axiosClient } from "helper/axiosClient";
+function Category() {
   // variable
-  const DEFAULT_LIMIT = 5;
+  const DEFAULT_LIMIT = 4;
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -28,8 +19,8 @@ function Admin_Category() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [categories, setCategories] = useState([]);
   const [refresh, setRefresh] = useState(0);
-  const [createForm] = Form.useForm();
   const [updateForm] = Form.useForm();
+  const [isHidden, setIsHidden] = useState(true);
 
   const onSelectProduct = useCallback(
     (data) => () => {
@@ -42,61 +33,38 @@ function Admin_Category() {
     [updateForm]
   );
 
-//   const onShowMessage = useCallback(
-//     (content, type = MESSAGE_TYPE.SUCCESS) => {
-//       messageApi.open({
-//         type: type,
-//         content: content,
-//       });
-//     },
-//     [messageApi]
-//   );
-// POST CATEGORY
   const onFinish = useCallback(async (values) => {
     
     try {
-      const res = await axiosClient.post("/category",values);
+      await axiosClient.post("/category/",values);
 
-      
+      message.success('Thêm mới thành công');
 
       setRefresh(refresh + 1);
-      // CASE 1
-      // const newItem = res.data.payload;
-
-      // setProducts((preState) => ([
-      //   ...preState,
-      //   newItem,
-      // ]))
+      setIsHidden(true);
     } catch (error) {
       console.log('◀◀◀ error ▶▶▶',error);
     }
-  }, []);
+  }, [refresh]);
   const onDeleteFinish = useCallback(
     (id) => async () => {
       try {
-        const res = await axiosClient.patch(`/category/delete/${id}`);
+         await axiosClient.patch(`/category/delete/${id}`);
 
-        getCategories();
-        // setRefresh(refresh + 1);
-
-        // const newItem = res.data.payload;
-
-        // setProducts((preState) => ([
-        //   ...preState,
-        //   newItem,
-        // ]))
+        setRefresh(refresh + 1);
+        message.success('Xóa thành công');
       } catch (error) {
         if (error?.response?.data?.errors) {
           error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
         }
       }
     },
-    []
+    [refresh]
   );
   const onEditFinish = useCallback(
     async (data) => {
       try {
-        const res = await axiosClient.put(
+         await axiosClient.put(
           `/category/${selectedProduct._id}`,
           data
         );
@@ -117,12 +85,16 @@ function Admin_Category() {
   );
   const getCategories = useCallback(async () => {
     try {
-      const res = await axiosClient.get("/category");
+      const res = await axiosClient.get(`/category?page=${pagination.page}&pageSize=${pagination.pageSize}`);
       setCategories(res.data.payload);
+      setPagination((prev) => ({
+        ...prev,
+        total: res.data.total,
+      }));
     } catch (err) {
       console.log("◀◀◀ err ▶▶▶", err);
     }
-  }, []);
+  }, [pagination.page, pagination.pageSize]);
   const onChangePage = useCallback(
     (page, pageSize) => {
       setPagination((prev) => ({
@@ -131,9 +103,8 @@ function Admin_Category() {
         pageSize,
       }));
 
-      getCategories();
     },
-    [getCategories]
+    []
   );
 
   useEffect(() => {
@@ -186,19 +157,31 @@ function Admin_Category() {
       },
     },
   ];
-  const handleChange = (value) => {
-    console.log("◀◀◀ choose ▶▶▶", value);
-  };
-  const [inputValue, setInputValue] = useState(1);
-  const onChange = (newValue) => {
-    setInputValue(newValue);
-  };
   return (
     // main
     <>
-    <CategoryForm
-    onFinish={onFinish}
-    />
+    <Row>
+        <Col span={20}>
+          <h1>Category</h1>
+        </Col>
+        <Col span={4} className="text-end">
+          <Button
+            type="primary"
+            className="my-3"
+            onClick={() => {
+              setIsHidden((prev) => !prev);
+            }}
+          >
+            {isHidden ? "Add Category" : "Close"}
+          </Button>
+        </Col>
+      </Row>
+      {!isHidden ? (
+        <CategoryForm
+        onFinish={onFinish}
+        />
+      ) : null}
+    
       <Table
         rowKey="_id"
         columns={columns}
@@ -234,4 +217,4 @@ function Admin_Category() {
     </>
   );
 }
-export default memo(Admin_Category);
+export default memo(Category);

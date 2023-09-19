@@ -25,7 +25,7 @@ function SupplierForm(props) {
           label="Tên nhà cung cấp"
           name="name"
           rules={[
-            { required: true, message: "Vui lòng nhập tên loại sản phẩm" },
+            { required: true, message: "Vui lòng nhập tên nhà cung cấp" },
             { max: 50, message: "Tối đa 50 ký tự" },
           ]}
         >
@@ -36,8 +36,12 @@ function SupplierForm(props) {
           name="email"
           rules={[
             {
-              max: 500,
-              message: "Mô tả không vượt quá 500 ký tự",
+              type: "email",
+              message: "Email không hợp lệ",
+            },
+            {
+              max: 50,
+              message: "Email không vượt quá 50 ký tự",
             },
           ]}
         >
@@ -47,6 +51,10 @@ function SupplierForm(props) {
           label="Số điện thoại"
           name="phoneNumber"
           rules={[
+            {
+              pattern: /(84)+([0-9]{10})\b/,
+              message: "Số điện thoại không hợp lệ",
+            },
             {
               max: 500,
               message: "Mô tả không vượt quá 500 ký tự",

@@ -32,12 +32,12 @@ function Products() {
     categoryId: undefined,
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [refresh, setRefresh] = useState(0);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [isHidden, setIsHidden] = useState(true);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [createForm] = Form.useForm();
   const [updateForm] = Form.useForm();
 
   const onSelectProduct = useCallback(
@@ -52,35 +52,45 @@ function Products() {
   );
 
   const onFinish = useCallback(async (values) => {
-    console.log('◀◀◀ values ▶▶▶',values.upload.file);
+    console.log("◀◀◀ values ▶▶▶", values.upload.file);
     try {
       const formData = new FormData();
-      formData.append('file', values.upload.file);
-      
-     const img= await axios.post('http://localhost:3005/media/upload-single', formData)
-      console.log('◀◀◀ img ▶▶▶',img.data.payload._id);
-      const {name,price,discount,stock,description,categoryId,supplierId}=values
-      const data=
-        {
-          name,
-          price,
-          discount,
-          stock,
-          description,
-          categoryId,
-          supplierId,
-          mediaId:`${img.data.payload._id}`
-        }
-      
-      console.log('◀◀◀ data ▶▶▶',data);
-      const res = await axiosClient.post("/products", data);
+      formData.append("file", values.upload.file);
+
+      const img = await axios.post(
+        "http://localhost:3005/media/upload-single",
+        formData
+      );
+      console.log("◀◀◀ img ▶▶▶", img.data.payload._id);
+      const {
+        name,
+        price,
+        discount,
+        stock,
+        description,
+        categoryId,
+        supplierId,
+      } = values;
+      const data = {
+        name,
+        price,
+        discount,
+        stock,
+        description,
+        categoryId,
+        supplierId,
+        mediaId: `${img.data.payload._id}`,
+      };
+
+      console.log("◀◀◀ data ▶▶▶", data);
+      await axiosClient.post("/products", data);
       message.success("Thêm sản phẩm thành công");
     } catch (error) {
-      console.log('◀◀◀ error ▶▶▶',error);
+      console.log("◀◀◀ error ▶▶▶", error);
       if (error?.response?.data?.error) {
-        const {code,keyValue}=error.response.data.error
-        if(code===11000){
-        return  message.error(`Mã sản phẩm ${keyValue.name} đã tồn tại`)
+        const { code, keyValue } = error.response.data.error;
+        if (code === 11000) {
+          return message.error(`Mã sản phẩm ${keyValue.name} đã tồn tại`);
         }
       }
       return message.error("Thêm sản phẩm thất bại");
@@ -89,51 +99,59 @@ function Products() {
   const onDeleteFinish = useCallback(
     (id) => async () => {
       try {
-        const res = await axiosClient.patch(`/products/delete/${id}`);
+        await axiosClient.patch(`/products/delete/${id}`);
 
-        getProductData();
-        // setRefresh(refresh + 1);
-
-        // const newItem = res.data.payload;
-
-        // setProducts((preState) => ([
-        //   ...preState,
-        //   newItem,
-        // ]))
+        setRefresh(refresh + 1);
+        message.success("Xóa thành công");
       } catch (error) {
-        if (error?.response?.data?.errors) {
-          error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
-        }
+        message.error("Xóa thất bại");
       }
     },
-    []
+    [refresh]
   );
   const onEditFinish = useCallback(
     async (data) => {
       try {
-        const res = await axiosClient.put(
-          `/products/${selectedProduct._id}`,
-          data
-        );
+        if (data.upload) {
+          const formData = new FormData();
+          formData.append("file", data.upload.file);
 
-        getProductData();
-        // setRefresh(refresh + 1);
-        updateForm.resetFields();
-
-        setEditModalVisible(false);
-      } catch (error) {
-        if (error?.response?.data?.errors) {
-          error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
+          const img = await axios.post(
+            "http://localhost:3005/media/upload-single",
+            formData
+          );
+          const dataInsert = {
+            name: data.name,
+            price: data.price,
+            discount: data.discount,
+            stock: data.stock,
+            description: data.description,
+            categoryId: data.categoryId,
+            supplierId: data.supplierId,
+            mediaId: `${img.data.payload._id}`,
+          };
+          console.log('◀◀◀ dataInsert ▶▶▶',dataInsert);
+          await axiosClient.put(`/products/${selectedProduct._id}`, dataInsert);
+        } else {
+          await axiosClient.put(`/products/${selectedProduct._id}`, data);
         }
+        setRefresh(refresh + 1);
+        updateForm.resetFields();
+        setEditModalVisible(false);
+        message.success("Cập nhật thành công");
+      } catch (error) {
+        message.error("Cập nhật thất bại");
       }
     },
-    [selectedProduct, updateForm]
+    [selectedProduct, updateForm, refresh]
   );
 
   const getProductData = useCallback(async () => {
     try {
       const res = await axiosClient.get(
-        `/products?page=${pagination.page}&pageSize=${pagination.pageSize}${search.categoryId?`&categoryId=${search.categoryId}`:''}`
+        `/products?page=${pagination.page}&pageSize=${pagination.pageSize}${
+          search.categoryId ? `&categoryId=${search.categoryId}` : ""
+        }`
       );
       setProducts(res.data.payload);
       setPagination((prev) => ({
@@ -160,18 +178,13 @@ function Products() {
       console.log("◀◀◀ err ▶▶▶", err);
     }
   }, []);
-  const onChangePage = useCallback(
-    (page, pageSize) => {
-      setPagination((prev) => ({
-        ...prev,
-        page,
-        pageSize,
-      }));
-
-      getProductData();
-    },
-    [getProductData]
-  );
+  const onChangePage = useCallback((page, pageSize) => {
+    setPagination((prev) => ({
+      ...prev,
+      page,
+      pageSize,
+    }));
+  }, []);
 
   useEffect(() => {
     getSuppliers();
@@ -180,7 +193,7 @@ function Products() {
   }, [getCategories, getSuppliers]);
   useEffect(() => {
     getProductData();
-  }, [getProductData, search]);
+  }, [getProductData, search, refresh]);
   const columns = [
     {
       title: "STT",
@@ -200,9 +213,26 @@ function Products() {
       title: "Hình ảnh",
       key: "mediaId",
       render: (text, record, index) => {
-        if(record.image)return  <img src={`http://localhost:3005${record.image.location.split('public',2)[1]}`} alt="" width="100px" height="100px"/>
+        if (record.image)
+          return (
+            <img
+              src={`http://localhost:3005${
+                record.image.location.split("public", 2)[1]
+              }`}
+              alt=""
+              width="100px"
+              height="100px"
+            />
+          );
         //<img src={`http://localhost:3005${record.image.location.split('public',2)[1]}`} alt="" width="100px" height="100px"/>
-        return <img src={require('assets/images/noimage.jpg')} alt="" width="100px" height="100px"/>
+        return (
+          <img
+            src={require("assets/images/noimage.jpg")}
+            alt=""
+            width="100px"
+            height="100px"
+          />
+        );
       },
     },
     {
@@ -270,25 +300,20 @@ function Products() {
     console.log("◀◀◀ choose ▶▶▶", value);
     setPagination((prev) => ({
       ...prev,
-      page:1
+      page: 1,
     }));
     setSearch((prev) => {
-      if(value==='all'){
+      if (value === "all") {
         return {
           ...prev,
           categoryId: null,
         };
-        
       }
       return {
         ...prev,
         categoryId: value,
       };
     });
-  };
-  const [inputValue, setInputValue] = useState(1);
-  const onChange = (newValue) => {
-    setInputValue(newValue);
   };
   return (
     // main
@@ -309,7 +334,7 @@ function Products() {
           </Button>
         </Col>
       </Row>
-      
+
       {!isHidden ? (
         <div className="container">
           <ProductsForm
@@ -329,9 +354,7 @@ function Products() {
             }}
             onChange={handleChange}
           >
-            <Select.Option value="all">
-                  Tất cả danh mục
-                </Select.Option>
+            <Select.Option value="all">Tất cả danh mục</Select.Option>
             {categories.map((item) => {
               return (
                 <Select.Option key={item._id} value={item._id}>

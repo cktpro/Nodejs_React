@@ -10,6 +10,8 @@ import {
   Modal,
   message,
   Pagination,
+  Row,
+  Col
 } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
@@ -17,7 +19,7 @@ import { axiosClient } from "helper/axiosClient";
 import SupplierForm from "./supplierForm";
 function Supplier() {
   // variable
-  const DEFAULT_LIMIT = 5;
+  const DEFAULT_LIMIT = 4;
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -27,8 +29,8 @@ function Supplier() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [suppliers, setSupplier] = useState([]);
   const [refresh, setRefresh] = useState(0);
-  const [createForm] = Form.useForm();
   const [updateForm] = Form.useForm();
+  const [isHidden,setIsHidden]=useState(true)
 
   const onSelectProduct = useCallback(
     (data) => () => {
@@ -40,26 +42,24 @@ function Supplier() {
     },
     [updateForm]
   );
-
-  //   const onShowMessage = useCallback(
-  //     (content, type = MESSAGE_TYPE.SUCCESS) => {
-  //       messageApi.open({
-  //         type: type,
-  //         content: content,
-  //       });
-  //     },
-  //     [messageApi]
-  //   );
   const onFinish = useCallback(
     async (values) => {
+      console.log('◀◀◀ values ▶▶▶',values);
       await axiosClient
         .post("/suppliers", values)
         .then(function (response) {
           setRefresh(refresh + 1);
-          message.success("Thành công");
+          message.success("Thêm thành công");
         })
         .catch(function (error) {
-          message.error("Thất bại");
+          
+          if(error.response.data.errors){
+            error.response.data.errors.map((e) => message.error(e));
+          }else{
+            console.log('◀◀◀ error ▶▶▶',error);
+            message.error("Thêm thất bại. Vui lòng kiểm tra lại thông tin");
+          }
+
         });
     },
     [refresh]
@@ -67,54 +67,45 @@ function Supplier() {
   const onDeleteFinish = useCallback(
     (id) => async () => {
       try {
-        const res = await axiosClient.patch(`/suppliers/delete/${id}`);
+        await axiosClient.patch(`/suppliers/delete/${id}`);
 
-        getSupplier();
-        // setRefresh(refresh + 1);
-
-        // const newItem = res.data.payload;
-
-        // setProducts((preState) => ([
-        //   ...preState,
-        //   newItem,
-        // ]))
+        setRefresh(refresh + 1);
+        message.success("Xóa thành công");
       } catch (error) {
-        if (error?.response?.data?.errors) {
-          error.response.data.errors.map((e) => console.log("◀◀◀ e ▶▶▶", e));
-        }
+        message.error("Xóa thất bại");
       }
     },
-    []
+    [refresh]
   );
   const onEditFinish = useCallback(
+    
     async (data) => {
       try {
-        const res = await axiosClient.put(
-          `/category/${selectedProduct._id}`,
+        await axiosClient.put(
+          `/suppliers/${selectedProduct._id}`,
           data
         );
 
         setRefresh(refresh + 1);
         updateForm.resetFields();
-
+        
         setEditModalVisible(false);
         message.success("Cập nhật thành công");
       } catch (error) {
-        if (error?.response?.data?.errors) {
-          error.response.data.errors.map((e) => message.error(e));
-        }
+        message.error("Cập nhật thất bại. Vui lòng kiểm tra lại thông tin");
       }
     },
     [selectedProduct, updateForm, refresh]
   );
   const getSupplier = useCallback(async () => {
     try {
-      const res = await axiosClient.get("/suppliers");
+      const res = await axiosClient.get(`/suppliers?page=${pagination.page}&pageSize=${pagination.pageSize}`);
       setSupplier(res.data.payload);
+      setPagination((prev)=>({...prev,total:res.data.total}))
     } catch (err) {
       console.log("◀◀◀ err ▶▶▶", err);
     }
-  }, []);
+  }, [pagination.page, pagination.pageSize]);
   const onChangePage = useCallback(
     (page, pageSize) => {
       setPagination((prev) => ({
@@ -123,9 +114,8 @@ function Supplier() {
         pageSize,
       }));
 
-      getSupplier();
     },
-    [getSupplier]
+    []
   );
 
   useEffect(() => {
@@ -188,14 +178,29 @@ function Supplier() {
       },
     },
   ];
-  const [inputValue, setInputValue] = useState(1);
-  const onChange = (newValue) => {
-    setInputValue(newValue);
-  };
   return (
     // main
     <>
-      <SupplierForm onFinish={onFinish} />
+    <Row>
+        <Col span={20}>
+          <h1>Supplier</h1>
+        </Col>
+        <Col span={4} className="text-end">
+          <Button
+            type="primary"
+            className="my-3"
+            onClick={() => {
+              setIsHidden((prev) => !prev);
+            }}
+          >
+            {isHidden ? "Add Supplier" : "Close"}
+          </Button>
+        </Col>
+      </Row>
+      {!isHidden ? (
+        <SupplierForm onFinish={onFinish} />
+      ) : null}
+      
       <Table
         rowKey="_id"
         columns={columns}

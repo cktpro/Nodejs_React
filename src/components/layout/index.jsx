@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout,  theme,Breadcrumb } from "antd";
 import { Outlet } from "react-router-dom";
 import Headers from "components/header";
 import Slide from "components/slide";
 import {useLocation} from 'react-router-dom';
 const { Content,Footer } = Layout;
-const {Item}=Breadcrumb
 const AdminPage = () => {
   const location=useLocation()
   const {
@@ -22,11 +21,11 @@ const AdminPage = () => {
           style={{
             margin: '16px 16px',
           }}
-        >
-          <Item>Home</Item>
-          {location.pathname.split("/")[1].length>0&&<Item>{location.pathname.split("/")}</Item>}
-          
-        </Breadcrumb>
+           items={[{ title: 'Home' }, { title: location.pathname.split("/")} ]}
+        />
+          {/* <Item>Home</Item>
+          {}</Item>} */}
+
         <Content
           style={{
             margin: "24px 16px",

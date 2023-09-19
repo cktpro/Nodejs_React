@@ -10,8 +10,9 @@ import Category from 'components/category';
 import Supplier from 'components/supplier';
 import NotFoundPage from 'pages/NotFoundPage';
 import ManualAntUpload from 'components/media';
+import Logout from 'components/logout';
+import MyProfile from 'pages/myProfile';
 export const routers = [
-//   { path: LOCATIONS.LOGIN, name: "Login Page", element: <Login /> },
   {
     path: LOCATIONS.HOME_PAGE,
     name: "Layout",
@@ -19,10 +20,16 @@ export const routers = [
     children: [
       { isRoot: true, name: "Home", element: <Main/> },
       { path: LOCATIONS.PRODUCTS, name: "Product Page", element: <ProductsPage/> },
+      { path: LOCATIONS.ADD_PRODUCT, name: "Add Product", element: <ProductsPage/> },
       { path: LOCATIONS.PRODUCT_DETAILS, name: "Product Details", element:<Details/> },
       { path: LOCATIONS.CATEGORY, name: "Category List", element:<Category/> },
+      { path: LOCATIONS.ADD_CATEGORY, name: "Add Category", element:<Category/> },
       { path: LOCATIONS.SUPPLIER, name: "Supplier List", element:<Supplier/> },
+      { path: LOCATIONS.ADD_SUPPLIER, name: "Add Supplier", element:<Supplier/> },
       { path: LOCATIONS.UPLOAD, name: "Upload Page", element:<ManualAntUpload/> },
+      { path: LOCATIONS.LOGOUT, name: "Logout", element:<Logout/> },
+      { path: LOCATIONS.MY_PROFILE, name: "My Profile", element:<MyProfile/> },
+      
       { path: "*", element: <NotFoundPage /> },
 
     ]
@@ -35,5 +42,5 @@ export const routers = [
 ];
 
 export const unAuthRouter = [
-  { path: LOCATIONS.LOGIN, name: "Login Page", element: <LoginPage/> },
+  { path: "*", name: "Login Page", element: <LoginPage/> },
 ];

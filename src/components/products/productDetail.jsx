@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react';
+import React,{useCallback, useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 
 import './details.scss'
@@ -8,7 +8,7 @@ function ProductDetail(props) {
     const params = useParams();
     const [loaded, setLoaded] = useState(false);
     const [product, setProduct] = useState({});
-  const getProductData = async () => {
+  const getProductData = useCallback(async () => {
     try {
       const url = `/products/${params.id}`;
 
@@ -19,10 +19,10 @@ function ProductDetail(props) {
     } catch (err) {
       console.error("««««« err »»»»»", err);
     }
-  };
+  }, [params.id]);
   useEffect( () => {
      getProductData();
-  }, []);
+  }, [getProductData]);
     return (
         <div className='container py-3'>
             <div className="product-box mx-auto">

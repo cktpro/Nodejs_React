@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Button, Form, Input, Upload, message } from "antd";
+import { Button, Form, Input,} from "antd";
 
 
 function CategoryForm(props) {
