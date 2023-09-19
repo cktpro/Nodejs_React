@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input,message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { actionLogin } from "store/auth/action";
 import "./loginPage.scss";
@@ -11,11 +11,11 @@ function LoginPage(props) {
   };
   const isLogin = useSelector((state) => state.authReducer.isLogin);
   if (isLogin) {
-    setTimeout(() => {
-      window.location.reload();
-      
-    }, 2000);
-    
+    message.success('Đăng nhập thành công');
+      setTimeout(() => {
+        window.location.replace("/");
+      } , 1000);
+
   }
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
