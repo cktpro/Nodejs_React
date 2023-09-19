@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react';
+import React,{useCallback, useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 
 import './details.scss'
@@ -8,7 +8,7 @@ function ProductDetail(props) {
     const params = useParams();
     const [loaded, setLoaded] = useState(false);
     const [product, setProduct] = useState({});
-  const getProductData = async () => {
+  const getProductData = useCallback(async () => {
     try {
       const url = `/products/${params.id}`;
 
@@ -19,18 +19,22 @@ function ProductDetail(props) {
     } catch (err) {
       console.error("««««« err »»»»»", err);
     }
-  };
+  }, [params.id]);
   useEffect( () => {
      getProductData();
-  }, []);
+  }, [getProductData]);
     return (
         <div className='container py-3'>
             <div className="product-box mx-auto">
       <div className="product-image">
-        <img
+        {product.image ?<img
+          alt={product.name}
+          src={`http://localhost:3005${product.image.location.split('public',2)[1]}`}
+        />:<img
           alt="example"
-          src="https://picsum.photos/300"
-        />
+          src={require("assets/images/noimage.jpg")}
+        />}
+        
       </div>
       <div>
         <h4>{product.name}</h4>

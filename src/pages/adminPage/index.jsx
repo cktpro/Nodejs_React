@@ -23,9 +23,6 @@ const AdminPage = () => {
   return (
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="demo-logo-vertical">
-          <h4>ADMIN PAGE</h4>
-        </div>
         <div><h6>Application</h6></div>
         <Menu
           theme="dark"

@@ -1,15 +1,11 @@
 import React, { memo } from "react";
-import { Button, Form, Input, } from "antd";
+import { Button, Form, Input,} from "antd";
 
-function SupplierForm(props) {
-  const {
-    isHiddenSubmit,
-    formName,
-    form,
-    optionStyle,
-    onFinish,
-    className
-  } = props;
+
+function CategoryForm(props) {
+  
+  const { isHiddenSubmit, formName, form, optionStyle, onFinish, className } =
+    props;
   return (
     <div className="w-75 mx-auto">
       <Form
@@ -22,7 +18,7 @@ function SupplierForm(props) {
         onFinish={onFinish}
       >
         <Form.Item
-          label="Tên nhà cung cấp"
+          label="Tên loại sản phẩm"
           name="name"
           rules={[
             { required: true, message: "Vui lòng nhập tên loại sản phẩm" },
@@ -32,32 +28,8 @@ function SupplierForm(props) {
           <Input />
         </Form.Item>
         <Form.Item
-          label="Email"
-          name="email"
-          rules={[
-            {
-              max: 500,
-              message: "Mô tả không vượt quá 500 ký tự",
-            },
-          ]}
-        >
-          <Input style={{ width: "100%" }} />
-        </Form.Item>
-        <Form.Item
-          label="Số điện thoại"
-          name="phoneNumber"
-          rules={[
-            {
-              max: 500,
-              message: "Mô tả không vượt quá 500 ký tự",
-            },
-          ]}
-        >
-          <Input style={{ width: "100%" }} />
-        </Form.Item>
-        <Form.Item
-          label="Địa chỉ"
-          name="address"
+          label="Mô tả"
+          name="description"
           rules={[
             {
               max: 500,
@@ -76,7 +48,7 @@ function SupplierForm(props) {
         )}
       </Form>
     </div>
-  )
+  );
 }
 
-export default memo(SupplierForm)
+export default memo(CategoryForm);

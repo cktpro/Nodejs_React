@@ -1,56 +1,13 @@
-.boxForm{
+.form{
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px 25px 20px 20px;
     width: 400px;
-    height: 700px;
-    background-image: url('../../assets/cover/mtp.png');
-    background-size: cover;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 20px;
-    border-radius: 20px;
-    .child{
-        opacity: 0.8;
-        width: 370px;
-        height: 555px;
-        background-color: black;
-        position: relative;
-        left:15px;
-        top: 130px;
-        border-radius: 10px;
-        padding: 20px 20px 0 20px;
-        
-    }
-}
-.btn-green{
-    background-color: rgb(1,195,142);
-    color: rgb(222,248,238);
-    &:hover{
-        background-color: rgb(1,195,142);
-        color: rgb(222,248,238);
-    }
-}
-.btn-white{
-    background-color: rgb(222,248,238);
-    color: black;
-}
-.btn-white,.btn-green{
-    font-weight: 500;
-    &:hover{
-        background-color: rgb(222,248,238);
-        color: black;
-    }
-}
-.logo{
-    width: 30px;
-    height: 30px;
     position: absolute;
-    left: 40px;
-    margin-top: -2px;
-}
-.term{
-    font-size: 15px;
-    color: white;
-}
-.link{
-    text-decoration: none;
-    color: rgb(1,195,142)
+    top: calc(50% - 200px);
+    left: calc(50% - 200px);;
+    h1{
+        text-align: center;
+        margin-bottom: 20px;
+    }
 }
