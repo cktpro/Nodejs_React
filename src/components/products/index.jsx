@@ -19,7 +19,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { axiosClient } from "helper/axiosClient";
 import axios from "axios";
 import ProductsForm from "./productsForm";
-
+const url = process.env.REACT_APP_BASE_URL_USER;
 function Products() {
   // variable
   const DEFAULT_LIMIT = 5;
@@ -52,16 +52,14 @@ function Products() {
   );
 
   const onFinish = useCallback(async (values) => {
-    console.log("◀◀◀ values ▶▶▶", values.upload.file);
     try {
       const formData = new FormData();
       formData.append("file", values.upload.file);
 
       const img = await axios.post(
-        "http://localhost:3005/media/upload-single",
+        `${url}media/upload-single`,
         formData
       );
-      console.log("◀◀◀ img ▶▶▶", img.data.payload._id);
       const {
         name,
         price,
@@ -117,7 +115,7 @@ function Products() {
           formData.append("file", data.upload.file);
 
           const img = await axios.post(
-            "http://localhost:3005/media/upload-single",
+            `${url}media/upload-single`,
             formData
           );
           const dataInsert = {
@@ -130,7 +128,6 @@ function Products() {
             supplierId: data.supplierId,
             mediaId: `${img.data.payload._id}`,
           };
-          console.log('◀◀◀ dataInsert ▶▶▶',dataInsert);
           await axiosClient.put(`/products/${selectedProduct._id}`, dataInsert);
         } else {
           await axiosClient.put(`/products/${selectedProduct._id}`, data);
@@ -216,7 +213,7 @@ function Products() {
         if (record.image)
           return (
             <img
-              src={`http://localhost:3005${
+              src={`${url}${
                 record.image.location.split("public", 2)[1]
               }`}
               alt=""

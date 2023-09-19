@@ -2,11 +2,13 @@ import { put, takeLeading } from 'redux-saga/effects';
 import * as actionTypes from './actionTypes';
 import { actionGetMyProfileSuccess, actionGetMyProfileFailed, actionLoginSuccess, actionLoginFailed, actionLogoutSuccess, actionLogoutFailed } from './action';
 import axios from 'axios';
+const url= process.env.REACT_APP_BASE_URL_USER
+
 function* getMyProfileSaga(action) {
     try {
         const token = action.payload;
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        const res= yield axios.get("http://localhost:3005/auth/profile")
+        const res= yield axios.get(`${url}auth/profile`)
         yield put(actionGetMyProfileSuccess(res.data.payload));
     }
     catch (error) {
@@ -16,7 +18,7 @@ function* getMyProfileSaga(action) {
 function* loginSaga(action) {
     try {
         
-        const res = yield axios.post("http://localhost:3005/auth/login", action.payload);
+        const res = yield axios.post(`${url}auth/login`, action.payload);
         yield localStorage.setItem('TOKEN', res.data.payload.token);
         yield localStorage.setItem('REFRESH_TOKEN', res.data.payload.refreshToken);
         yield put(actionLoginSuccess());
