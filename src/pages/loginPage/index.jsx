@@ -10,12 +10,17 @@ function LoginPage(props) {
     dispatch(actionLogin(values));
   };
   const isLogin = useSelector((state) => state.authReducer.isLogin);
-  if (isLogin) {
-    message.success('Đăng nhập thành công');
-      setTimeout(() => {
-        window.location.replace("/");
-      } , 1000);
-
+  const isLoading = useSelector((state) => state.authReducer.isLoading);
+  if (isLoading) {
+      message.loading({ content: 'Đang đăng nhập...', key: 'login',duration:1000 });
+  }
+  if (isLogin===true) {
+    message.success({ content: 'Đăng nhập thành công!', key: 'login',duration:1000 });
+    setTimeout(() => {
+     return window.location.href = "/";
+    }, 1000);
+  }else if(isLogin===false){
+    message.error({ content: 'Đăng nhập thất bại!', key: 'login',duration:1000 });
   }
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -71,12 +76,13 @@ function LoginPage(props) {
               message: "Password must be at least 6 characters",
             },
           ]}
+          extra="Login with cktpro@gmail.com - 123456"
         >
           <Input.Password />
         </Form.Item>
 
         <Form.Item
-          extra="Login with cktpro@gmail.com - 123456"
+          
           name="remember"
           valuePropName="checked"
           wrapperCol={{

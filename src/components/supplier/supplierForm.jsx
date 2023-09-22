@@ -50,6 +50,7 @@ function SupplierForm(props) {
         <Form.Item
           label="Số điện thoại"
           name="phoneNumber"
+          extra="Ví dụ: +840xxxxxxxxxx"
           rules={[
             {
               pattern: /(84)+([0-9]{10})\b/,

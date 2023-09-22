@@ -3,9 +3,9 @@ import * as actionTypes from './actionTypes';
 const initialState = {
     isLoading: false,
     myProfile: {},
-    isLogin: false,
+    isLogin: null,
     isLogout: false,
-    error: null
+    error: null,
 };
 const authReducer = (state = initialState, action) => {
     switch (action.type) {
@@ -47,6 +47,7 @@ const authReducer = (state = initialState, action) => {
                 ...state,
                 error: action.payload,
                 isLoading: false,
+                isLogin: false,
             };
         case actionTypes.LOGOUT:
             return {

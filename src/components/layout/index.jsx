@@ -15,7 +15,13 @@ const AdminPage = () => {
       <Layout>
       {/* Slide */}
       <Slide />
-      <Layout>
+      <Layout
+      style={
+        {
+          minWidth: "960px",
+        }
+      }
+      >
       <Headers/>
       <Breadcrumb
           style={{

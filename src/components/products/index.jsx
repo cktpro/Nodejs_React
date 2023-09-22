@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
+import './details.scss'
 import { axiosClient } from "helper/axiosClient";
 import axios from "axios";
 import ProductsForm from "./productsForm";
@@ -83,6 +84,8 @@ function Products() {
       console.log("◀◀◀ data ▶▶▶", data);
       await axiosClient.post("/products", data);
       message.success("Thêm sản phẩm thành công");
+      setRefresh(refresh + 1);
+      setIsHidden(true);
     } catch (error) {
       console.log("◀◀◀ error ▶▶▶", error);
       if (error?.response?.data?.error) {
@@ -93,14 +96,14 @@ function Products() {
       }
       return message.error("Thêm sản phẩm thất bại");
     }
-  }, []);
+  }, [refresh]);
   const onDeleteFinish = useCallback(
     (id) => async () => {
       try {
         await axiosClient.patch(`/products/delete/${id}`);
 
         setRefresh(refresh + 1);
-        message.success("Xóa thành công");
+        message.success("Xóa thành công")
       } catch (error) {
         message.error("Xóa thất bại");
       }
@@ -212,14 +215,14 @@ function Products() {
       render: (text, record, index) => {
         if (record.image)
           return (
+        <div className="img-products">
             <img
               src={`${url}${
                 record.image.location.split("public", 2)[1]
               }`}
-              alt=""
-              width="100px"
-              height="100px"
+              alt={record.image.name}
             />
+            </div>
           );
         //<img src={`http://localhost:3005${record.image.location.split('public',2)[1]}`} alt="" width="100px" height="100px"/>
         return (

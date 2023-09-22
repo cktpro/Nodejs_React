@@ -5,6 +5,7 @@ import './details.scss'
 import {axiosClient} from 'helper/axiosClient'
 
 function ProductDetail(props) {
+  const uri = process.env.REACT_APP_BASE_URL_USER;
     const params = useParams();
     const [loaded, setLoaded] = useState(false);
     const [product, setProduct] = useState({});
@@ -29,7 +30,7 @@ function ProductDetail(props) {
       <div className="product-image">
         {product.image ?<img
           alt={product.name}
-          src={`http://localhost:3005${product.image.location.split('public',2)[1]}`}
+          src={`${uri}${product.image.location.split('public',2)[1]}`}
         />:<img
           alt="example"
           src={require("assets/images/noimage.jpg")}

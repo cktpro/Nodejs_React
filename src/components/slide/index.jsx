@@ -8,14 +8,13 @@ import {
 import './slide.scss'
   const{Sider}=Layout
 function Slide(props) {
-    const {collapsed}=props
     const navigate=useNavigate()
     const onClick = useCallback((e) => {
         navigate(e.key)
       }, [navigate]);
     
     return (
-        <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Sider trigger={null} collapsible collapsed={false}>
       <div className="logo-header" ><h2>Admin</h2></div>
         <div className='title-slide'><h6>App</h6></div>
         <Menu
