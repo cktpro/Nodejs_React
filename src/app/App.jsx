@@ -16,7 +16,7 @@ function App() {
     }
   }, [token,dispatch]);
   const myProfile=useSelector(state=>state.authReducer.myProfile)
-  if (myProfile._id) {
+  if (token && myProfile) {
     return (
       <Routes>
         {routers.map((r, idx) => {
